@@ -1,0 +1,23 @@
+{
+  "name": "web-page-designer-vue-components",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezegyfa2/web-page-designer-vue-components.git"
+  },
+  "author": "ezegyfa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ezegyfa2/web-page-designer-vue-components/issues"
+  },
+  "homepage": "https://github.com/ezegyfa2/web-page-designer-vue-components#readme",
+  "dependencies": {
+    "fs": "0.0.1-security"
+  }
+}
