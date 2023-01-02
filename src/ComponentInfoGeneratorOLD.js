@@ -1,18 +1,28 @@
-import { readdirSync, readFileSync, writeFileSync } from 'fs'
+const fs = require('fs')
+
+writeComponentInfos()
 
 function writeComponentInfos() {
+    let path = 'D:/Projektek/laragon/www/WebDesigner/resources/js/componentInfos.js'
     let componentInfos = getComponentInfos()
-    writeFileSync('./componentInfos', JSON.stringify(componentInfos))
+    fs.writeFileSync(path, 'export default ' + JSON.stringify(componentInfos, null, 2))
+    console.log('dsfsd')
 }
 
 function getComponentInfos() {
     let vuePackageFolderPath = 'D:/Projektek/Sajat/Sablonok/Node modulok/Vue'
-    const getIndexFilePaths = source => readdirSync(source, { withFileTypes: true })
+    const indexFilePaths = fs.readdirSync(vuePackageFolderPath, { withFileTypes: true })
         .filter(dirent => dirent.isDirectory() && dirent.name.includes('vue-components'))
         .map(dirent => vuePackageFolderPath + '/' + dirent.name + '/src')
-    let indexFilePath = getIndexFilePaths(vuePackageFolderPath)[0]
+    let componentInfos = {}
+    indexFilePaths.forEach(indexFilePath => {
+        componentInfos = { ...componentInfos, ...getPackageComponentInfos(indexFilePath) }
+    })
+    return componentInfos
+}
 
-    let indexContent = readFileSync(indexFilePath + '/index.js')
+function getPackageComponentInfos(indexFilePath) {
+    let indexContent = fs.readFileSync(indexFilePath + '/index.js')
     let componentDeclarations = [...indexContent.toString().matchAll('Vue.component\\(.*\\.default')]
         .map(componentDeclaration => componentDeclaration[0])
     let componentInfosParts = componentDeclarations.map(componentDeclaration => {
@@ -24,10 +34,6 @@ function getComponentInfos() {
             indexFilePath + '/' + componentPath
         ]
     })
-    let s = require(componentInfosParts[0][1])
-    //console.log(s)
-
-    let componentContent = readFileSync().toString()
 
     let componentInfos = {}
     componentInfosParts.forEach(componentInfosPart => {

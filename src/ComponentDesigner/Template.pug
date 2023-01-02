@@ -1,5 +1,14 @@
-table 
-    tbody 
-        tr(v-for='row in rows')
-            td(v-for='item in row.items')
-                
+div(v-bind:key='refresherKey' class='designer')
+    div(v-if='this.propertyInfos')
+        button(@click='helperClicked')
+        component(
+            v-for='propertyName in propertyNames'
+            v-bind:key='propertyName'
+            v-bind:ref='propertyName'
+            v-bind:is='formItemSections[propertyName].type'
+            v-bind='formItemSections[propertyName].data'
+            v-bind:value.sync='currentTemplate.data[propertyName]'
+            @sectionSelected='(newSectionType) => { changeSection(newSectionType, propertyName) }'
+            @sectionChanged='(newSectionType) => { $emit("sectionChanged", newSectionType) }'
+        )
+        | {{ JSON.stringify(this.currentTemplate) }}

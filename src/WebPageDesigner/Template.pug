@@ -1,5 +1,17 @@
-table 
-    tbody 
-        tr(v-for='row in rows')
-            td(v-for='item in row.items')
-                
+div 
+    create-icon-link.create-button(
+        content='Refresh result'
+        v-bind:on_click='sendTemplate'
+    )
+    table(
+        v-bind:key="refresherKey" 
+        v-bind:style='tableWidth'
+    )
+        tbody 
+            tr(v-for='row in rows')
+                td(v-for='item in row')
+                    web-designer-component-designer(
+                        v-if='item.template'
+                        v-bind:template.sync='item.template'
+                        @sectionChanged="sectionChanged"
+                    )
