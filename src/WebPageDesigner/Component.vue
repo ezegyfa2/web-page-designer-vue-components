@@ -47,7 +47,8 @@
                 deep: true,
                 handler(newTemplate) {
                     console.log(newTemplate)
-                }
+                },
+                flush: 'sync'
             }
         },
         methods: {

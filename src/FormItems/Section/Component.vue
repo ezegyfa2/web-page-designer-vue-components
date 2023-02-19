@@ -40,7 +40,8 @@
                     if (newValue) {
                         this.currentSectionType = newValue.type
                     }
-                }
+                },
+                flush: 'sync'
             },
             currentSectionType: {
                 handler(newSectionType) {
