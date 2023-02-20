@@ -1,6 +1,7 @@
 div(v-bind:key='refresherKey' class='designer')
     div(v-if='this.propertyInfos')
         button(@click='helperClicked')
+        // Replace @sectionSelected and @sectionChanged to v-on:update:value?
         component(
             v-for='propertyName in propertyNames'
             v-bind:key='propertyName'
