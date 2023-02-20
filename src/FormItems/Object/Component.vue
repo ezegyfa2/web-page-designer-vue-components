@@ -50,7 +50,8 @@
                             }
                         })
                     }
-                }
+                },
+                flush: 'sync'
             },
             itemValues: {
                 immediate: true,

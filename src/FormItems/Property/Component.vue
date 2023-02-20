@@ -42,7 +42,8 @@
                         this.propertyName = ''
                         this.propertyValue = ''
                     }
-                }
+                },
+                flush: 'sync'
             },
             propertyName: {
                 immediate: true,
