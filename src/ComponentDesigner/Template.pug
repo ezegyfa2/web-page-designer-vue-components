@@ -1,6 +1,14 @@
 div(v-bind:key='refresherKey' class='designer')
     div(v-if='this.propertyInfos')
-        button(@click='helperClicked')
+        h1 {{ this.template.type }}
+        create-icon-link.create-button(
+            content='Create component'
+            v-bind:on_click='createComponent'
+        )
+        create-icon-link.create-button.create-button-margin-left(
+            content='Select'
+            v-bind:on_click='selectComponent'
+        )
         component(
             v-for='propertyName in propertyNames'
             v-bind:key='propertyName'

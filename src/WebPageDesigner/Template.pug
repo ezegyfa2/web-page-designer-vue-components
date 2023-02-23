@@ -3,6 +3,10 @@ div
         content='Refresh result'
         v-bind:on_click='sendTemplate'
     )
+    create-icon-link.create-button.create-button-margin-left(
+        content='Write selection'
+        v-bind:on_click='writeSelection'
+    )
     table(
         v-bind:key="refresherKey" 
         v-bind:style='tableWidth'

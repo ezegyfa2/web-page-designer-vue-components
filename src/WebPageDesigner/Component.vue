@@ -200,9 +200,24 @@
                 axios.post('/designer', {
                     'designedTemplate': JSON.stringify(this.template)
                 })
+            },
+            writeSelection(template) {
+                if (template.selected) {
+                    console.log(template)
+                }
+                if (typeof template === 'object' && !Array.isArray(template) && template !== null) {
+                    for (const [key, value] of Object.entries(template)) {
+                        writeSelection(template[key])
+                        }
+                } else {
+                    for (let i = 0; i < template.length; i++) {
+                        writeSelection(template[i])
+                    }
+                }
             }
         }
     }
+        
 </script>
 
 <style lang="scss" scoped>

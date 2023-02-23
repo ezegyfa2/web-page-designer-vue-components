@@ -71,10 +71,22 @@
                     this.$emit('sectionChanged', newSectionType)
                 }
             },
-            helperClicked() {
-                console.log(this.$el)
-                console.log('helper')
-                console.log(this.getSectionElements()[0].getBoundingClientRect())
+            createComponent() {
+                let link = new URL(window.location)
+
+                $.ajax({
+                    type: "POST",
+                    url: link.pathname + "/copy-component",
+                    data: {
+                        type: this.template.type, 
+                        _token: document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    success: () => console.log("Data sending is successful"),
+                    dataType: "json"
+                });
+            },
+            selectComponent() {
+                this.template.selected = true
             }
         }
     }
