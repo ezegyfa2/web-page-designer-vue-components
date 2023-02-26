@@ -48,7 +48,8 @@
                     if (!this.currentValue || newSectionType != this.currentValue.type) {
                         this.$emit('sectionSelected', newSectionType)
                     }
-                }
+                },
+                flush: 'sync'
             }
         },
         methods: {
