@@ -10,13 +10,13 @@ form-item-with-label.form-group.array(
             icon_class='fas fa-plus'
             v-bind:on_click='() => { createItem() }'
         )
-        div(v-if='itemValues')
-            div.array-item(v-for='valueIndex in itemValues.length')
+        div(v-if='value')
+            div.array-item(v-for='valueIndex in value.length')
                 delete-icon-link(
                     v-bind:on_click='() => { deleteItem(valueIndex) }'
                 )
                 component.array-item-form(
                     v-bind:is='currentItemType'
-                    v-bind:value.sync='itemValues[valueIndex - 1]'
+                    v-bind:value.sync='value[valueIndex - 1]'
                     @sectionSelected='(newSectionType) => { changeSection(newSectionType, valueIndex - 1) }'
                 )
