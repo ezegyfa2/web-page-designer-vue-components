@@ -36,6 +36,7 @@
         },
         watch: {
             currentValue: {
+                immediate: true,
                 handler(newValue) {
                     if (newValue) {
                         this.currentSectionType = newValue.type
@@ -44,6 +45,7 @@
                 flush: 'sync'
             },
             currentSectionType: {
+                immediate: true,
                 handler(newSectionType) {
                     if (!this.currentValue || newSectionType != this.currentValue.type) {
                         this.$emit('sectionSelected', newSectionType)
