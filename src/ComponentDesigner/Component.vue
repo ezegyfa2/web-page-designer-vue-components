@@ -22,7 +22,8 @@
                 propertyInfos: null,
                 dataTransmits: {
                     currentTemplate: 'template'
-                }
+                },
+                selected: false
             }
         },
         mounted() {
@@ -86,7 +87,13 @@
                 });
             },
             selectComponent() {
-                this.template.selected = true
+                if(this.template.selected) {
+                    delete this.template.selected
+                } else {
+                    this.template.selected = true
+                }
+                
+                this.selected = !this.selected
             }
         }
     }
