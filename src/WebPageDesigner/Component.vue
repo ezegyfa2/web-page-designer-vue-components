@@ -17,7 +17,8 @@
         data() {
             return {
                 rows: [],
-                computedDesignerInfos: []
+                computedDesignerInfos: [],
+                template_name: ''
             }
         },
         mounted() {
@@ -201,17 +202,20 @@
                     'designedTemplate': JSON.stringify(this.template)
                 })
             },
-            writeSelection(template) {
-                if (template.selected) {
-                    console.log(template)
-                }
-                if (typeof template === 'object' && !Array.isArray(template) && template !== null) {
-                    for (const [key, value] of Object.entries(template)) {
-                        writeSelection(template[key])
-                        }
-                } else {
-                    for (let i = 0; i < template.length; i++) {
-                        writeSelection(template[i])
+            writeSelection(objTemplate) {  
+                let copyObject = JSON.parse(JSON.stringify(objTemplate));
+                
+                if (Array.isArray(copyObject)) {
+                    copyObject.map((item) => {
+                        this.writeSelection(item)
+                    })
+                } else if (typeof copyObject === 'object' && copyObject !== null) {
+                    const templateIsRealTemplate = "type" in copyObject || "template_type_name" in copyObject
+                    if ("selected" in copyObject && templateIsRealTemplate) {
+                        console.log(copyObject.type)
+                    }
+                    for (const [key, value] of Object.entries(copyObject)) {
+                        this.writeSelection(copyObject[key])
                     }
                 }
             }
