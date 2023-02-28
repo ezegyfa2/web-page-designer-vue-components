@@ -1,4 +1,4 @@
-div(v-bind:key='refresherKey' class='designer')
+div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" class='designer')
     div(v-if='this.propertyInfos')
         h1 {{ this.template.type }}
         create-icon-link.create-button(
@@ -6,7 +6,7 @@ div(v-bind:key='refresherKey' class='designer')
             v-bind:on_click='createComponent'
         )
         create-icon-link.create-button.create-button-margin-left(
-            content='Select'
+            :content="this.selected ? 'Unselect' : 'Select'"
             v-bind:on_click='selectComponent'
         )
         component(

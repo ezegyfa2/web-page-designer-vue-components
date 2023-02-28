@@ -3,6 +3,10 @@
     padding: 2rem;
     background-color: #8F95D3;
 }
+.selected {
+    border: 5px solid #f4c74e;
+    border-style: dashed;
+}
 .create-button {
     margin-bottom: 1rem;
 }
