@@ -58,7 +58,7 @@
         methods: {
             changeSection(newSectionType, propertyName) {
                 if (!this.template.data[propertyName] || newSectionType != this.template.data[propertyName].type) {
-                    newTemplate.data[propertyName] = {
+                    this.template.data[propertyName] = {
                         type: newSectionType,
                         data: {}
                     }
