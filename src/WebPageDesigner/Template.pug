@@ -8,13 +8,13 @@ div
     //- )
     div
         bootstrap-text-input.create-input(
-            v-model="text" 
+            v-model="template_name" 
             placeholder="Template name"
-            v-bind:value='template_name'
+            v-bind:validation_errors='error'
         )
         create-icon-link.create-button(
             content='Create template'
-            v-bind:on_click='() => writeSelection(template)'
+            v-bind:on_click='() => doubleOnclick(template)'
         )
     table(
         v-bind:key="refresherKey" 

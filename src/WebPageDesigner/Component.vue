@@ -18,7 +18,13 @@
             return {
                 rows: [],
                 computedDesignerInfos: [],
-                template_name: ''
+                template_name: '',
+                error: [],
+                selectedObjs: [],
+                selectedTemplates: {
+                    name: '',
+                    content: ''},
+                parentChildConnection: 0,
             }
         },
         mounted() {
@@ -202,17 +208,43 @@
                     'designedTemplate': JSON.stringify(this.template)
                 })
             },
-            writeSelection(objTemplate) {  
-                let copyObject = JSON.parse(JSON.stringify(objTemplate));
-                
+            doubleOnclick(objTemplate) {
+                this.clearSelectedObj()
+                this.writeSelection(objTemplate)
+                this.checkSelectedTemplates()
+            },
+            getTemplateName() {
+
+            },
+            setTemplateName() {
+
+            },
+            getSelectedObjs() {
+                return this.selectedObjs
+            },
+            setSelectedObjs(obj) {
+                this.selectedObjs.push(obj)
+            },
+            clearSelectedObj() {
+                this.selectedObjs = []
+            },
+            writeSelection(objTemplate) {
+                this.createObjectList(objTemplate)
+            },
+            createObjectList(copyObject) {
                 if (Array.isArray(copyObject)) {
                     copyObject.map((item) => {
                         this.writeSelection(item)
                     })
                 } else if (typeof copyObject === 'object' && copyObject !== null) {
                     const templateIsRealTemplate = "type" in copyObject || "template_type_name" in copyObject
-                    if ("selected" in copyObject && templateIsRealTemplate) {
-                        console.log(copyObject.type)
+
+                    if (templateIsRealTemplate) {
+                        if ("selected" in copyObject && copyObject.selected === true) {
+                            console.log(copyObject.type)
+                        } else {
+
+                        }
                     }
                     for (const [key, value] of Object.entries(copyObject)) {
                         this.writeSelection(copyObject[key])
