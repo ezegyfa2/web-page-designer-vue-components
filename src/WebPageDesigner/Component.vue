@@ -20,6 +20,7 @@
                 computedDesignerInfos: [],
                 template_name: '',
                 error: [],
+                copyObject: {},
                 selectedObjs: [],
                 selectedTemplates: {
                     name: '',
@@ -29,6 +30,7 @@
         },
         mounted() {
             this.computedDesignerInfos = this.getComponentInfos(this.template, 0, 0)
+            this.copyObject = this.copyTemplate(this.template)
             this.rows = this.getRows()
             this.updateConnectors()
         },
@@ -208,16 +210,12 @@
                     'designedTemplate': JSON.stringify(this.template)
                 })
             },
-            doubleOnclick(objTemplate) {
+            copyTemplate(template) {
+                return JSON.parse(JSON.stringify(template))
+            },
+            onClickFunctions(objTemplate) {
                 this.clearSelectedObj()
                 this.writeSelection(objTemplate)
-                this.checkSelectedTemplates()
-            },
-            getTemplateName() {
-
-            },
-            setTemplateName() {
-
             },
             getSelectedObjs() {
                 return this.selectedObjs
@@ -228,32 +226,32 @@
             clearSelectedObj() {
                 this.selectedObjs = []
             },
-            writeSelection(objTemplate) {
-                this.createObjectList(objTemplate)
+            writeSelection(copyObject) {
+                this.createObjectList(copyObject)
             },
             createObjectList(copyObject) {
                 if (Array.isArray(copyObject)) {
                     copyObject.map((item) => {
-                        this.writeSelection(item)
+                        this.createObjectList(item)
                     })
                 } else if (typeof copyObject === 'object' && copyObject !== null) {
                     const templateIsRealTemplate = "type" in copyObject || "template_type_name" in copyObject
 
                     if (templateIsRealTemplate) {
                         if ("selected" in copyObject && copyObject.selected === true) {
-                            console.log(copyObject.type)
-                        } else {
-
+                            let copyObjectElement = this.copyTemplate(copyObject)
+                            this.setSelectedObjs(copyObjectElement)
+                            console.log(copyObject.type, ' ', this.selectedObjs)
                         }
                     }
                     for (const [key, value] of Object.entries(copyObject)) {
-                        this.writeSelection(copyObject[key])
+                        this.createObjectList(copyObject[key])
                     }
                 }
             }
         }
     }
-        
+    
 </script>
 
 <style lang="scss" scoped>
