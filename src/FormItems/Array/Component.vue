@@ -73,6 +73,9 @@
                     this.$emit('update:value', this.itemValues)
                     this.$emit('sectionChanged', '')
                 }
+            },
+            addSelectedTemplates() {
+                
             }
         }
     }
