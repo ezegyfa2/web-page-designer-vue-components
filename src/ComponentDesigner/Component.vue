@@ -18,16 +18,12 @@
         },
         data() {
             return {
-                currentTemplate: {},
                 propertyInfos: null,
-                dataTransmits: {
-                    currentTemplate: 'template'
-                },
                 selected: false
             }
         },
         mounted() {
-            this.propertyInfos = getComponentPropertyInfos(this.currentTemplate.type)
+            this.propertyInfos = getComponentPropertyInfos(this.template.type)
         },
         computed: {
             formItemSections() {
@@ -43,31 +39,31 @@
             }
         },
         watch: {
-            currentTemplate: {
+            template: {
                 immediate: true,
                 deep: true,
                 handler(newTemplate) {
-                    this.currentTemplate = newTemplate
-                    this.propertyInfos = getComponentPropertyInfos(this.currentTemplate.type)
-                    if (this.propertyInfos && this.currentTemplate && this.currentTemplate.data) {
+                    this.propertyInfos = getComponentPropertyInfos(newTemplate.type)
+                    if (this.propertyInfos && newTemplate && newTemplate.data) {
                         Object.keys(this.propertyInfos.properties).forEach(propertyName => {
-                            if (typeof this.currentTemplate.data[propertyName] === 'undefined') {
-                                this.currentTemplate.data[propertyName] = null
+                            if (typeof newTemplate.data[propertyName] === 'undefined') {
+                                newTemplate.data[propertyName] = null
                                 //throw new Error('Property missing from template ' + propertyName)
                             }
                         })
                     }
-                }
+                },
+                flush: 'sync'
             }
         },
         methods: {
             changeSection(newSectionType, propertyName) {
-                if (!this.currentTemplate.data[propertyName] || newSectionType != this.currentTemplate.data[propertyName].type) {
-                    this.currentTemplate.data[propertyName] = {
+                if (!this.template.data[propertyName] || newSectionType != this.template.data[propertyName].type) {
+                    this.template.data[propertyName] = {
                         type: newSectionType,
                         data: {}
                     }
-                    this.propertyInfos = getComponentPropertyInfos(this.currentTemplate.type)
+                    this.propertyInfos = getComponentPropertyInfos(this.template.type)
                     console.log('section change')
                     this.$emit('sectionChanged', newSectionType)
                 }

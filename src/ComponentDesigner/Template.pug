@@ -15,8 +15,8 @@ div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" c
             v-bind:ref='propertyName'
             v-bind:is='formItemSections[propertyName].type'
             v-bind='formItemSections[propertyName].data'
-            v-bind:value.sync='currentTemplate.data[propertyName]'
+            v-bind:value.sync='template.data[propertyName]'
             @sectionSelected='(newSectionType) => { changeSection(newSectionType, propertyName) }'
             @sectionChanged='(newSectionType) => { $emit("sectionChanged", newSectionType) }'
         )
-        | {{ JSON.stringify(this.currentTemplate) }}
+        | {{ JSON.stringify(this.template) }}

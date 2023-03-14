@@ -24,11 +24,7 @@
         },
         data() {
             return {
-                itemValues: [],
                 specifiedItemType: null,
-                dataTransmits: {
-                    itemValues: 'value',
-                }
             }
         },
         computed: {
@@ -51,26 +47,26 @@
                 }
             },
             createItem() {
-                if (this.itemValues == null) {
-                    this.itemValues = []
+                if (this.value == null) {
+                    this.$emit('update:value', [])
                 }
-                this.itemValues.push(null)
-                this.$emit('update:value', this.itemValues)
+                this.value.push(null)
+                this.$emit('update:value', this.value)
                 this.$emit('sectionChanged', '')
             },
             deleteItem(index) {
-                this.itemValues.splice(index - 1, 1)
-                this.itemValues = this.itemValues
-                this.$emit('update:value', this.itemValues)
+                this.value.splice(index - 1, 1)
+                this.$emit('update:value', this.value)
+                this.$emit('update:value', this.value)
                 this.$emit('sectionChanged', '')
             },
             changeSection(newSectionType, index) {
-                if (!this.itemValues[index] || newSectionType != this.itemValues[index].type) {
-                    this.itemValues[index] = {
+                if (!this.value[index] || newSectionType != this.value[index].type) {
+                    this.value[index] = {
                         type: newSectionType,
                         data: {}
                     }
-                    this.$emit('update:value', this.itemValues)
+                    this.$emit('update:value', this.value)
                     this.$emit('sectionChanged', '')
                 }
             },
