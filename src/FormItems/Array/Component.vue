@@ -48,10 +48,12 @@
             },
             createItem() {
                 if (this.value == null) {
-                    this.$emit('update:value', [])
+                    this.$emit('update:value', [null])
                 }
-                this.value.push(null)
-                this.$emit('update:value', this.value)
+                else {
+                    this.value.push(null)
+                    this.$emit('update:value', this.value)
+                }
                 this.$emit('sectionChanged', '')
             },
             deleteItem(index) {

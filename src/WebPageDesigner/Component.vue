@@ -101,7 +101,7 @@
             },
             getComponentInfos(template, x, y) {
                 let designerComponentInfos = []
-                if (template) {
+                if (template && template.type && template.type != '') {
                     designerComponentInfos.push({
                         template: template,
                         x: x,
