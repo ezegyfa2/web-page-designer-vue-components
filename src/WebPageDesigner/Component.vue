@@ -26,9 +26,11 @@
                     name: '',
                     content: ''},
                 parentChildConnection: 0,
+                childTemplates: []
             }
         },
         mounted() {
+            console.log(this.isCoherentSelection([this.template, this.template]))
             this.computedDesignerInfos = this.getComponentInfos(this.template, 0, 0)
             this.copyObject = this.copyTemplate(this.template)
             this.rows = this.getRows()
@@ -214,41 +216,88 @@
             copyTemplate(template) {
                 return JSON.parse(JSON.stringify(template))
             },
-            onClickFunctions(objTemplate) {
-                this.clearSelectedObj()
-                this.writeSelection(objTemplate)
+            onClickFunctions() {
+                console.log(this.isCoherentSelection(this.getSelectedTemplates()))
             },
-            getSelectedObjs() {
-                return this.selectedObjs
+            getSelectedTemplates() {
+                return this.getSelectedSubTemplates(this.template)
             },
-            setSelectedObjs(obj) {
-                this.selectedObjs.push(obj)
-            },
-            clearSelectedObj() {
-                this.selectedObjs = []
-            },
-            writeSelection(copyObject) {
-                this.createObjectList(copyObject)
-            },
-            createObjectList(copyObject) {
+            getSelectedSubTemplates(copyObject) {
+                let result = []
                 if (Array.isArray(copyObject)) {
                     copyObject.map((item) => {
-                        this.createObjectList(item)
+                        result.push(...this.getSelectedSubTemplates(item))
                     })
                 } else if (typeof copyObject === 'object' && copyObject !== null) {
-                    const templateIsRealTemplate = "type" in copyObject || "template_type_name" in copyObject
+                    const templateIsRealTemplate = 'type' in copyObject || 'template_type_name' in copyObject
 
                     if (templateIsRealTemplate) {
-                        if ("selected" in copyObject && copyObject.selected === true) {
+                        if ('selected' in copyObject && copyObject.selected === true) {
                             let copyObjectElement = this.copyTemplate(copyObject)
-                            this.setSelectedObjs(copyObjectElement)
-                            console.log(copyObject.type, ' ', this.selectedObjs)
+                            result.push(copyObjectElement)
                         }
                     }
                     for (const [key, value] of Object.entries(copyObject)) {
-                        this.createObjectList(copyObject[key])
+                        result.push(...this.getSelectedSubTemplates(copyObject[key]))
                     }
                 }
+                return result
+            },
+            removeTemplateChilds(templates) {
+                if (Array.isArray(templates)) {
+                    let templatesCopy = new Array()
+                    templates.forEach(function (elem, index) {
+                        if (typeof elem === 'object' && elem !== null) {
+                            let templateCopy = JSON.parse(JSON.stringify(elem))
+                            if (typeof templateCopy['data'] !== 'undefined') {
+                                for (const [key, value] of Object.entries(templateCopy.data)) {
+                                    if ('type' !== key && 'template_type_name' !== key && value !== null) {
+                                        delete templateCopy['data'][key]
+                                    }
+                                }
+                            }
+                            templatesCopy.push(templateCopy)
+                        }
+                    });
+                    return templatesCopy
+                }
+                else {
+                    throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
+                }
+            },
+            isCoherentSelection(templates) {
+                window.templates=templates
+                console.log(templates)
+                this.childTemplates = []
+                if (Array.isArray(templates)) {
+                    for (let i = 0; i < templates.length; i++) {
+                        for (let j = 0; j < templates.length; j++) {
+                            if (j !== i) {
+                                if ('undefined' !== typeof templates[j]['data'] && this.templatesContains(templates[i], templates[j])) {
+                                    this.childTemplates.push(templates[j])
+                                }
+                            }
+                        }
+                    }
+                    return this.childTemplates.lenght == templates.length - 1
+                }
+                else {
+                    throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
+                }
+            },
+            templatesContains(template_i, template_j) {
+                for (const [key, value] of Object.entries(template_j['data'])) {
+                    if(!this.childTemplates.includes(template_j)) {
+                        if (value !== null && value !== "" && value !== []) {
+                            console.log(value === template_i, value, template_i)
+                            if(value === template_i) {
+                                console.log(template_i, template_j, true)
+                                return true
+                            }
+                        }
+                    }
+                }
+                return false
             }
         }
     }
