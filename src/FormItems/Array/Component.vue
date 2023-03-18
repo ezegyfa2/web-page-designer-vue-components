@@ -4,12 +4,10 @@
 
 <script>
     import FormItemWithLabel from './../../../../helper-vue-components/src/Form/FormItems/FormItemWithLabel/Component.vue'
-    import DataTransmitting from './../../../../helper-vue-components/src/DataTransmitting.vue'
 
     export default {
         mixins: [
             FormItemWithLabel,
-            DataTransmitting,
         ],
         props: {
             value: {
@@ -51,6 +49,7 @@
                     this.$emit('update:value', [null])
                 }
                 else {
+                    console.log('value', JSON.parse(JSON.stringify(this.value)))
                     this.value.push(null)
                     this.$emit('update:value', this.value)
                 }
@@ -58,7 +57,6 @@
             },
             deleteItem(index) {
                 this.value.splice(index - 1, 1)
-                this.$emit('update:value', this.value)
                 this.$emit('update:value', this.value)
                 this.$emit('sectionChanged', '')
             },
@@ -71,6 +69,12 @@
                     this.$emit('update:value', this.value)
                     this.$emit('sectionChanged', '')
                 }
+            },
+            updatedValue(newValue, valueIndex) {
+                this.$emit("valueUpdated", { 
+                    newValue: newValue, 
+                    index: valueIndex 
+                })
             },
             addSelectedTemplates() {
                 

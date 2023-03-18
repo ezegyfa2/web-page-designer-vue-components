@@ -1,10 +1,9 @@
-<script>
-    import ArrayInput from './../Array/Component.vue'
+<template lang="pug">
+    include Template.pug
+</template>
 
+<script>
     export default {
-        mixins: [
-            ArrayInput,
-        ],
         props: {
             value: {
                 type: Object,
@@ -18,11 +17,7 @@
                 changeCount: 0,
                 itemValues: [],
                 itemValuesChanging: false,
-                specifiedItemType: 'web-designer-property-input'
             }
-        },
-        beforeMount() {
-            delete this.dataTransmits.itemValues
         },
         computed: {
             convertedValue() {
@@ -61,7 +56,8 @@
                         this.itemValues = newItemValues
                         this.$emit('update:value', this.convertedValue)
                     }
-                }
+                },
+                flush: 'sync'
             }
         },
         methods: {

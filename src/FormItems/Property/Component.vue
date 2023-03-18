@@ -26,7 +26,7 @@
             }
         },
         watch: {
-            currentValue: {
+            value: {
                 immediate: true,
                 deep: true,
                 handler(newValue) {
@@ -35,12 +35,10 @@
                         this.propertyValue = newValue.value
                     }
                     else if (newValue === null) {
-                        this.currentValue = {
+                        this.$emit('update:value', {
                             name: '',
                             value: ''
-                        }
-                        this.propertyName = ''
-                        this.propertyValue = ''
+                        })
                     }
                 },
                 flush: 'sync'
@@ -49,9 +47,11 @@
                 immediate: true,
                 deep: true,
                 handler(newPropertyName) {
-                    if (this.currentValue && this.currentValue.name != newPropertyName) {
-                        this.currentValue.name = newPropertyName
-                        this.$emit('update:value', this.currentValue)
+                    if (this.value && this.value.name != newPropertyName) {
+                        this.$emit('update:value', {
+                            name: newPropertyName,
+                            value: this.value.value
+                        })
                     }
                 }
             },
@@ -59,9 +59,11 @@
                 immediate: true,
                 deep: true,
                 handler(newPropertyValue) {
-                    if (this.currentValue && this.currentValue.value != newPropertyValue) {
-                        this.currentValue.value = newPropertyValue
-                        this.$emit('update:value', this.currentValue)
+                    if (this.value && this.value.value != newPropertyValue) {
+                        this.$emit('update:value', {
+                            name: this.value.name,
+                            value: newPropertyValue
+                        })
                     }
                 }
             }

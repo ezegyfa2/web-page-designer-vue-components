@@ -216,29 +216,30 @@
             copyTemplate(template) {
                 return JSON.parse(JSON.stringify(template))
             },
-            onClickFunctions() {
+            createTemplate() {
+                console.log(JSON.parse(JSON.stringify(this.getSelectedTemplates())))
                 console.log(this.isCoherentSelection(this.getSelectedTemplates()))
             },
             getSelectedTemplates() {
                 return this.getSelectedSubTemplates(this.template)
             },
-            getSelectedSubTemplates(copyObject) {
+            getSelectedSubTemplates(template) {
                 let result = []
-                if (Array.isArray(copyObject)) {
-                    copyObject.map((item) => {
+                if (Array.isArray(template)) {
+                    template.map((item) => {
                         result.push(...this.getSelectedSubTemplates(item))
                     })
-                } else if (typeof copyObject === 'object' && copyObject !== null) {
-                    const templateIsRealTemplate = 'type' in copyObject || 'template_type_name' in copyObject
+                } 
+                else if (typeof template === 'object' && template !== null) {
+                    const templateIsRealTemplate = 'type' in template || 'template_type_name' in template
 
                     if (templateIsRealTemplate) {
-                        if ('selected' in copyObject && copyObject.selected === true) {
-                            let copyObjectElement = this.copyTemplate(copyObject)
-                            result.push(copyObjectElement)
+                        if ('selected' in template && template.selected === true) {
+                            result.push(template)
                         }
                     }
-                    for (const [key, value] of Object.entries(copyObject)) {
-                        result.push(...this.getSelectedSubTemplates(copyObject[key]))
+                    for (const [key, value] of Object.entries(template)) {
+                        result.push(...this.getSelectedSubTemplates(template[key]))
                     }
                 }
                 return result
@@ -258,7 +259,7 @@
                             }
                             templatesCopy.push(templateCopy)
                         }
-                    });
+                    })
                     return templatesCopy
                 }
                 else {
@@ -266,42 +267,51 @@
                 }
             },
             isCoherentSelection(templates) {
-                window.templates=templates
-                console.log(templates)
                 this.childTemplates = []
                 if (Array.isArray(templates)) {
                     for (let i = 0; i < templates.length; i++) {
                         for (let j = 0; j < templates.length; j++) {
-                            if (j !== i) {
-                                if ('undefined' !== typeof templates[j]['data'] && this.templatesContains(templates[i], templates[j])) {
-                                    this.childTemplates.push(templates[j])
-                                }
+                            if (this.isChildTemplate(templates[i], templates[j])) {
+                                this.childTemplates.push(templates[i])
                             }
                         }
                     }
-                    return this.childTemplates.lenght == templates.length - 1
+                    return this.childTemplates.length == templates.length - 1
                 }
                 else {
                     throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
                 }
             },
-            templatesContains(template_i, template_j) {
-                for (const [key, value] of Object.entries(template_j['data'])) {
-                    if(!this.childTemplates.includes(template_j)) {
-                        if (value !== null && value !== "" && value !== []) {
-                            console.log(value === template_i, value, template_i)
-                            if(value === template_i) {
-                                console.log(template_i, template_j, true)
-                                return true
-                            }
+            isChildTemplate(childTemplate, parentTemplate) {
+                if (parentTemplate['data']) {
+                    for (const [key, dataValue] of Object.entries(parentTemplate['data'])) {
+                        if (this.isSimilarData(childTemplate, dataValue)) {
+                            return true
                         }
                     }
                 }
-                return false
+                else {
+                    return false
+                }
+            },
+            isSimilarData(childTemplate, parentTemplateDataValue) {
+                if (this.childTemplates.includes(childTemplate)) {
+                    return false
+                }
+                else if (Array.isArray(parentTemplateDataValue)) {
+                    for (let subDataValue of parentTemplateDataValue) {
+                        if (this.isSimilarData(childTemplate, subDataValue)) {
+                            return true
+                        }
+                    }
+                    return false
+                }
+                else {
+                    return childTemplate === parentTemplateDataValue
+                }
             }
         }
     }
-    
 </script>
 
 <style lang="scss" scoped>
