@@ -198,7 +198,7 @@
                 this.updateConnectors()
             },
             sendTemplate() {
-                axios.post('/designer', {
+                axios.post(window.location.href, {
                     'designedTemplate': JSON.stringify(this.template)
                 })
             }
