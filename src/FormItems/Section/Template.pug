@@ -14,7 +14,7 @@ form-item-with-label.flex-column.section(
     .d-flex.mb-3
         web-designer-select-without-label.me-3(
             v-bind:value.sync='currentSectionType'
-            v-bind:options='componentNameoptions'
+            v-bind:options='savedTemplateNamesOptions'
         )
         create-icon-link.create-button(
             content='Load'

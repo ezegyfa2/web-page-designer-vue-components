@@ -24,4 +24,5 @@ div
                         v-if='item.template'
                         v-bind:template.sync='item.template'
                         @sectionChanged="sectionChanged"
+                        v-bind:saved_template_names="saved_template_names"
                     )
