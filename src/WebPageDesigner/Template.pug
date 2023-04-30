@@ -1,10 +1,10 @@
 div 
-    create-icon-link.create-button(
+    create-icon-link.create-button.ms-5.mt-3(
         content='Refresh result'
         v-bind:on_click='sendTemplate'
     )
-    div
-        bootstrap-text-input.create-input(
+    .d-flex
+        web-designer-text-input-without-label.create-input(
             v-model="template_name" 
             placeholder="Template name"
             v-bind:validation_errors='error'
