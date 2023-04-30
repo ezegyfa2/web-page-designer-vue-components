@@ -55,6 +55,9 @@
             }
         },
         methods: {
+            addSelectedTemplates() {
+                
+            }
         }
     }
 </script>
