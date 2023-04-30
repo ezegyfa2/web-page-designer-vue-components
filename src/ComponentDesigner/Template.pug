@@ -5,7 +5,7 @@ div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" c
             content='Create component'
             v-bind:on_click='createComponent'
         )
-        create-icon-link.create-button.create-button-margin-left(
+        create-icon-link.create-button.ms-3(
             :content="this.selected ? 'Unselect' : 'Select'"
             v-bind:on_click='selectComponent'
         )
