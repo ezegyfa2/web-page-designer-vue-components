@@ -39,12 +39,12 @@
                 })
             },
             savedTemplateNamesOptions() {
-                return this.saved_template_names.forEach(templateName => {
-                    return {
-                        text: templateName,
-                        value: templateName
-                    }
-                })
+                return this.saved_template_names.map(templateName => {
+                        return {
+                            text: templateName,
+                            value: templateName
+                        }
+                    })
             }
         },
         watch: {
