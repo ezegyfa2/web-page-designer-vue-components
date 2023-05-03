@@ -15,9 +15,6 @@
             },
             saved_template_names: {
                 type: Array,
-                default() {
-                    return ['edit','save','input']
-                }
             }
         },
         data() {

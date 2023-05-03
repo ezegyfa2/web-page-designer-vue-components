@@ -17,6 +17,9 @@
                 default() {
                     return {}
                 }
+            },
+            saved_template_names: {
+                type: Array
             }
         },
         data() {
