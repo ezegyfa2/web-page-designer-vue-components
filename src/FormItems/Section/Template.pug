@@ -1,5 +1,23 @@
-web-designer-select.section(
+form-item-with-label.flex-column.section(
     v-bind:label='label'
-    v-bind:value.sync='currentSectionType'
-    v-bind:options='componentNameoptions'
+    v-bind:validation_errors='validation_errors'
+    v-bind:saved_template_names='saved_template_names'
 )
+    .mb-3.d-flex
+        create-icon-link.create-button.create-button-margin-left(
+            content='Paste selected sections'
+            @click='addSelectedTemplates'
+        )
+    web-designer-select-without-label.mb-3(
+        v-bind:value.sync='currentSectionType'
+        v-bind:options='componentNameoptions'
+    )
+    .d-flex.mb-3
+        web-designer-select-without-label.me-3(
+            v-bind:value.sync='currentSectionType'
+            v-bind:options='savedTemplateNamesOptions'
+        )
+        create-icon-link.create-button(
+            content='Load'
+            v-bind:on_click='createTemplate'
+        )

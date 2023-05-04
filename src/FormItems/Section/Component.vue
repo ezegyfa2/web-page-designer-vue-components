@@ -4,18 +4,23 @@
 
 <script>
     import FormItemWithLabel from './../../../../helper-vue-components/src/Form/FormItems/FormItemWithLabel/Component.vue'
+    import FromItemWithoutLabel from '../../../../helper-vue-components/src/Form/FormItemsWithoutLabel/Select/Component.vue'
     import FormItemWithValue from './../../../../helper-vue-components/src/Form/BasicFormItems/FormItemWithValue.vue'
     import DataTransmitting from './../../../../helper-vue-components/src/DataTransmitting.vue'
 
     export default {
         mixins: [
             FormItemWithLabel,
+            FromItemWithoutLabel,
             FormItemWithValue,
             DataTransmitting,
         ],
         props: {
             parameters: {
                 type: Object
+            },
+            saved_template_names: {
+                type: Array
             }
         },
         data() {
@@ -32,6 +37,14 @@
                         value: componentName
                     }
                 })
+            },
+            savedTemplateNamesOptions() {
+                return this.saved_template_names.map(templateName => {
+                        return {
+                            text: templateName,
+                            value: templateName
+                        }
+                    })
             }
         },
         watch: {
@@ -55,6 +68,9 @@
             }
         },
         methods: {
+            addSelectedTemplates() {
+                
+            }
         }
     }
 </script>

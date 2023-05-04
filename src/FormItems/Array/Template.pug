@@ -1,6 +1,7 @@
 form-item-with-label.form-group.array(
     v-bind:label='label'
     v-bind:validation_errors='validation_errors'
+    v-bind:saved_template_names="saved_template_names"
 )
     div(
         v-bind:id='formItemId'
@@ -23,6 +24,7 @@ form-item-with-label.form-group.array(
                 component.array-item-form(
                     v-bind:is='currentItemType'
                     v-bind:value.sync='value[valueIndex - 1]'
+                    v-bind:saved_template_names='saved_template_names'
                     v-on:updated:value='(newValue) => { updateValue(newValue, valueIndex - 1) }'
                     v-on:sectionSelected='(newSectionType) => { changeSection(newSectionType, valueIndex - 1) }'
                 )

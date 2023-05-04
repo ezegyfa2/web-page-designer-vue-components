@@ -14,6 +14,9 @@
         props: {
             template: {
                 type: Object
+            },
+            saved_template_names: {
+                type: Array
             }
         },
         data() {
