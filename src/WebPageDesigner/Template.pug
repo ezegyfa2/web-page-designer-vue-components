@@ -1,20 +1,20 @@
 div 
     create-icon-link.create-button(
         content='Refresh result'
-        v-bind:on_click='sendTemplate'
+        v-on:on_click='sendTemplate'
     )
     div
         bootstrap-text-input.create-input(
-            v-model="template_name" 
-            placeholder="Template name"
+            v-model='template_name' 
+            placeholder='Template name'
             v-bind:validation_errors='error'
         )
         create-icon-link.create-button(
             content='Create template'
-            v-bind:on_click='createTemplate'
+            v-on:on_click='createTemplate'
         )
     table(
-        v-bind:key="refresherKey" 
+        v-bind:key='refresherKey' 
         v-bind:style='tableWidth'
     )
         tbody 
@@ -23,5 +23,5 @@ div
                     web-designer-component-designer(
                         v-if='item.template'
                         v-bind:template.sync='item.template'
-                        @sectionChanged="sectionChanged"
+                        v-on:sectionChanged='sectionChanged'
                     )

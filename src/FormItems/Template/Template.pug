@@ -3,11 +3,11 @@ div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" c
         h1 {{ this.template.type }}
         create-icon-link.create-button(
             content='Create component'
-            v-on:on_click='createComponent'
+            v-bind:on_click='createComponent'
         )
         create-icon-link.create-button.create-button-margin-left(
             :content="this.selected ? 'Unselect' : 'Select'"
-            v-on:on_click='selectComponent'
+            v-bind:on_click='selectComponent'
         )
         component(
             v-for='propertyName in propertyNames'

@@ -12,6 +12,9 @@
         props: {
             template: {
                 type: Object
+            },
+            saved_template_names: {
+                type: Array
             }
         },
         data() {
@@ -24,7 +27,8 @@
                 selectedObjs: [],
                 selectedTemplates: {
                     name: '',
-                    content: ''},
+                    content: ''
+                },
                 parentChildConnection: 0,
                 childTemplates: []
             }
@@ -217,8 +221,15 @@
                 return JSON.parse(JSON.stringify(template))
             },
             createTemplate() {
-                console.log(JSON.parse(JSON.stringify(this.getSelectedTemplates())))
-                console.log(this.isCoherentSelection(this.getSelectedTemplates()))
+                post({
+                    url: '/designer/template',
+                    data: {
+                        template_name: 'asd',
+                        template: this.getRootTemplate(this.getSelectedTemplates())
+                    }
+                }).done((data) => {
+                    console.log(data)
+                })
             },
             getSelectedTemplates() {
                 return this.getSelectedSubTemplates(this.template)
@@ -229,7 +240,7 @@
                     template.map((item) => {
                         result.push(...this.getSelectedSubTemplates(item))
                     })
-                } 
+                }
                 else if (typeof template === 'object' && template !== null) {
                     const templateIsRealTemplate = 'type' in template || 'template_type_name' in template
 
@@ -245,47 +256,61 @@
                 return result
             },
             removeTemplateChilds(templates) {
-                if (Array.isArray(templates)) {
-                    let templatesCopy = new Array()
-                    templates.forEach(function (elem, index) {
-                        if (typeof elem === 'object' && elem !== null) {
-                            let templateCopy = JSON.parse(JSON.stringify(elem))
-                            if (typeof templateCopy['data'] !== 'undefined') {
-                                for (const [key, value] of Object.entries(templateCopy.data)) {
-                                    if ('type' !== key && 'template_type_name' !== key && value !== null) {
-                                        delete templateCopy['data'][key]
-                                    }
+                checkVariableType(templates, 'templates', 'array')
+                let templatesCopy = new Array()
+                templates.forEach(function (elem, index) {
+                    if (typeof elem === 'object' && elem !== null) {
+                        let templateCopy = JSON.parse(JSON.stringify(elem))
+                        if (typeof templateCopy['data'] !== 'undefined') {
+                            for (const [key, value] of Object.entries(templateCopy.data)) {
+                                if ('type' !== key && 'template_type_name' !== key && value !== null) {
+                                    delete templateCopy['data'][key]
                                 }
                             }
-                            templatesCopy.push(templateCopy)
                         }
-                    })
-                    return templatesCopy
+                        templatesCopy.push(templateCopy)
+                    }
+                })
+                return templatesCopy
+            },
+            getRootTemplate(templates) {
+                checkVariableType(templates, 'templates', 'array')
+                if (templates.length > 0) {
+                    if (this.isCoherentSelection(templates)) {
+                        let childTemplates = this.getChildTemplates(templates)
+                        let filteredTemplates = templates.filter(template => {
+                            return !childTemplates.includes(template)
+                        })
+                        return filteredTemplates[0]
+                    }
+                    else {
+                        throw new Error('Selection is not coherent')
+                    }
                 }
                 else {
-                    throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
+                    throw new Error('No component selected')
                 }
             },
             isCoherentSelection(templates) {
-                this.childTemplates = []
-                if (Array.isArray(templates)) {
-                    for (let i = 0; i < templates.length; i++) {
-                        for (let j = 0; j < templates.length; j++) {
-                            if (this.isChildTemplate(templates[i], templates[j])) {
-                                this.childTemplates.push(templates[i])
-                            }
+                checkVariableType(templates, 'templates', 'array')
+                return this.getChildTemplates(templates).length == templates.length - 1
+            },
+            getChildTemplates(templates) {
+                checkVariableType(templates, 'templates', 'array')
+                let childTemplates = []
+                for (let i = 0; i < templates.length; i++) {
+                    for (let j = 0; j < templates.length; j++) {
+                        if (this.isChildTemplate(templates[i], templates[j], childTemplates)) {
+                            childTemplates.push(templates[i])
                         }
                     }
-                    return this.childTemplates.length == templates.length - 1
                 }
-                else {
-                    throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
-                }
+                return childTemplates
             },
-            isChildTemplate(childTemplate, parentTemplate) {
+            isChildTemplate(childTemplate, parentTemplate, childTemplates) {
                 if (parentTemplate['data']) {
                     for (const [key, dataValue] of Object.entries(parentTemplate['data'])) {
-                        if (this.isSimilarData(childTemplate, dataValue)) {
+                        if (this.isSimilarData(childTemplate, dataValue, childTemplates)) {
                             return true
                         }
                     }
@@ -294,13 +319,13 @@
                     return false
                 }
             },
-            isSimilarData(childTemplate, parentTemplateDataValue) {
-                if (this.childTemplates.includes(childTemplate)) {
+            isSimilarData(childTemplate, parentTemplateDataValue, childTemplates) {
+                if (childTemplates.includes(childTemplate)) {
                     return false
                 }
                 else if (Array.isArray(parentTemplateDataValue)) {
                     for (let subDataValue of parentTemplateDataValue) {
-                        if (this.isSimilarData(childTemplate, subDataValue)) {
+                        if (this.isSimilarData(childTemplate, subDataValue, childTemplates)) {
                             return true
                         }
                     }

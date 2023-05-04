@@ -38,24 +38,6 @@
                 return Object.keys(this.propertyInfos.properties)
             }
         },
-        watch: {
-            template: {
-                immediate: true,
-                deep: true,
-                handler(newTemplate) {
-                    this.propertyInfos = getComponentPropertyInfos(newTemplate.type)
-                    if (this.propertyInfos && newTemplate && newTemplate.data) {
-                        Object.keys(this.propertyInfos.properties).forEach(propertyName => {
-                            if (typeof newTemplate.data[propertyName] === 'undefined') {
-                                newTemplate.data[propertyName] = null
-                                //throw new Error('Property missing from template ' + propertyName)
-                            }
-                        })
-                    }
-                },
-                flush: 'sync'
-            }
-        },
         methods: {
             changeSection(newSectionType, propertyName) {
                 if (!this.template.data[propertyName] || newSectionType != this.template.data[propertyName].type) {
@@ -68,28 +50,48 @@
                     this.$emit('sectionChanged', newSectionType)
                 }
             },
-            createComponent() {
-                let link = new URL(window.location)
-
-                $.ajax({
-                    type: "POST",
-                    url: link.pathname + "/copy-component",
-                    data: {
-                        type: this.template.type, 
-                        _token: document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    success: () => console.log("Data sending is successful"),
-                    dataType: "json"
-                })
-            },
-            selectComponent() {
-                if (this.template.selected) {
-                    delete this.template.selected
-                } else {
-                    this.template.selected = true
+            getParams(template, valueType) {
+                let params = []
+                if (Array.isArray(template)) {
+                    params.push(...template.map((templateValue) => {
+                        return this.getParams(templateValue, valueType)
+                    }))
                 }
-                
-                this.selected = !this.selected
+                else if (template && typeof(template) == 'object') {
+                    if ('type' in template) {
+                        params.push(...this.getComponentParams(template))
+                    }
+                    else if (valueType) {
+                        for (const [key, value] of Object.entries(template)) {
+                            params.push(...this.getParams,  valueType)
+                        }
+                        params.push({
+                            name: template,
+                            type: 
+                        })
+                    }
+                    else {
+                        throw new Error('Can\'t get template params')
+                    }
+                }
+                else if (valueType) {
+                    params.push({
+                        name: template,
+                        type: valueType 
+                    })
+                }
+                return params
+            },
+            getComponentParams(component) {
+                checkVariableType(component, 'component', 'object')
+                checkObjectHasProperty(component, 'type')
+                let params = []
+                if (component.data) {
+                    for (const [key, value] of Object.entries(data)) {
+                        params.push(...this.getParams(value, getPropertyType(component.type, key)))
+                    }
+                }
+                return params
             }
         }
     }
