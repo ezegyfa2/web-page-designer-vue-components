@@ -17,12 +17,15 @@
             },
             saved_template_names: {
                 type: Array
+            },
+            selected: {
+                type: Boolean,
+                default: false
             }
         },
         data() {
             return {
-                propertyInfos: null,
-                selected: false
+                propertyInfos: null
             }
         },
         mounted() {
@@ -83,16 +86,27 @@
                     },
                     success: () => console.log("Data sending is successful"),
                     dataType: "json"
-                })
+                });
             },
             selectComponent() {
-                if (this.template.selected) {
-                    delete this.template.selected
-                } else {
-                    this.template.selected = true
+                // if shift down
+                if (pressedKeys[16]) {
+                    console.log('select all')
+                    this.$emit('onSelectAll')
                 }
-                
-                this.selected = !this.selected
+                else {
+                    console.log('select')
+                    this.$emit('update:selected', !this.selected)
+                }
+            },
+            loadSection(newSection, propertyName) {
+                if (!this.template.data[propertyName] || JSON.stringify(newSection) != JSON.stringify(this.template.data[propertyName])) {
+                    this.template.data[propertyName] = newSection
+                    this.propertyInfos = []
+                    this.propertyInfos = getComponentPropertyInfos(this.template.type)
+                    console.log('section change')
+                    this.$emit('sectionChanged', newSection.type)
+                }
             }
         }
     }

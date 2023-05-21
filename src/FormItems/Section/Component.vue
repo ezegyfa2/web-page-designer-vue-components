@@ -26,11 +26,12 @@
         data() {
             return {
                 filters: {},
-                currentSectionType: null
+                currentSectionType: null,
+                selectedTemplateToLoad: null
             }
         },
         computed: {
-            componentNameoptions() {
+            componentNameOptions() {
                 return Object.keys(window.componentProperties).map(componentName => {
                     return {
                         text: componentName,
@@ -68,8 +69,13 @@
             }
         },
         methods: {
-            addSelectedTemplates() {
-                
+            pasteSelectedTemplates() {
+                this.$emit('sectionLoaded', JSON.parse(JSON.stringify()))
+            },
+            loadTemplate() {
+                if (this.selectedTemplateToLoad) {
+                    this.$emit('sectionLoaded', JSON.parse(JSON.stringify(window.saved_templates[this.selectedTemplateToLoad])))
+                }
             }
         }
     }

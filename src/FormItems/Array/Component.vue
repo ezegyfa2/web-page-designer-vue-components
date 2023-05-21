@@ -18,6 +18,9 @@
             },
             item_type: {
                 type: String
+            },
+            saved_template_names: {
+                type: Array
             }
         },
         data() {
@@ -78,6 +81,11 @@
             },
             addSelectedTemplates() {
                 
+            },
+            loadSection(newSection, index) {
+                this.value[index] = newSection
+                this.$emit('update:value', this.value)
+                this.$emit('sectionChanged', '')
             }
         }
     }
