@@ -13,8 +13,11 @@
             template: {
                 type: Object
             },
-            saved_template_names: {
-                type: Array,
+            saved_templates: {
+                type: Object,
+                default() {
+                    return {}
+                }
             }
         },
         data() {
@@ -22,22 +25,26 @@
                 rows: [],
                 computedDesignerInfos: [],
                 template_name: '',
-                error: [],
                 copyObject: {},
                 selectedObjs: [],
                 selectedTemplates: {
                     name: '',
-                    content: ''},
+                    content: ''
+                },
                 parentChildConnection: 0,
-                childTemplates: []
+                childTemplates: [],
+                createTemplateValidationErrors: []
             }
         },
         mounted() {
-            console.log(this.isCoherentSelection([this.template, this.template]))
             this.computedDesignerInfos = this.getComponentInfos(this.template, 0, 0)
             this.copyObject = this.copyTemplate(this.template)
             this.rows = this.getRows()
-            this.updateConnectors()
+            setTimeout(() => {
+                this.updateConnectors()
+            }, 3000)
+            window.saved_templates = this.saved_templates
+            window.template = this.template
         },
         updated() {
             console.log('designer updated')
@@ -53,6 +60,9 @@
             },
             sectionClassName() {
                 return 'line' + this._uid
+            },
+            savedTemplateNames() {
+                return Object.keys(this.saved_templates)
             }
         },
         watch: {
@@ -113,7 +123,7 @@
                         y: y
                     })
                     Object.keys(getComponentPropertyInfos(template.type).properties).forEach(propertyName => {
-                        if (template.data[propertyName] && isSectionPropertyName(propertyName)) {
+                        if (template.data && propertyName in template.data && isSectionPropertyName(propertyName)) {
                             if (Array.isArray(template.data[propertyName])) {
                                 template.data[propertyName].forEach(templateProperty => {
                                     let subComponentInfos = this.getComponentInfos(templateProperty, x + 1, y + 1)
@@ -132,16 +142,17 @@
                 return designerComponentInfos
             },
             updateConnectors() {
-                executeAfterCondition(() => {
+                let repeater = new ErrorRepeater(300, 20)
+                repeater.resetAndExecute(() => {
+                    this.computedDesignerInfos.forEach(designerComponentInfo => {
+                        this.checkSubComponentConnectors(designerComponentInfo.x, designerComponentInfo.y)
+                    })
                     document.querySelector('#app').querySelectorAll('hr.' + this.sectionClassName).forEach(line => {
                         document.querySelector('#app').removeChild(line)
                     })
                     this.computedDesignerInfos.forEach(designerComponentInfo => {
                         this.updateSubComponentConnectors(designerComponentInfo.x, designerComponentInfo.y)
                     })
-                },
-                () => {
-                    return this.rows.length == this.$el.querySelectorAll('tr').length
                 })
             },
             updateSubComponentConnectors(x, y) {
@@ -155,6 +166,20 @@
                         document.querySelector('#app').appendChild(this.getVerticallyLine(i, currentCellX - x, sectionElements, componentDesignerCell))
                         ++currentCellX
                     }
+                }
+            },
+            checkSubComponentConnectors(x, y) {
+                let componentDesignerCell = this.getComponentDesignerCell(x, y)
+                let sectionElements = this.getSectionElements(componentDesignerCell)
+                    /*console.log(sectionElements)
+                    console.log(JSON.parse(JSON.stringify(this.computedDesignerInfos)))
+                    console.log(x)
+                    console.log(y)
+                    console.log(JSON.parse(JSON.stringify(this.rows)))*/
+                let currentCellX = x
+                for (let i = 0; i < sectionElements.length; ++i) {
+                    currentCellX = this.getNextCell(currentCellX, y + 1)
+                    ++currentCellX
                 }
             },
             getNextCell(currentCellX, y) {
@@ -209,22 +234,56 @@
                 console.log('designer section change')
                 this.computedDesignerInfos = this.getComponentInfos(this.template, 0, 0)
                 this.rows = this.getRows()
-                this.updateConnectors()
+                setTimeout(() => {
+                    this.updateConnectors()
+                }, 3000)
             },
             sendTemplate() {
-                axios.post(window.location.href, {
-                    'designedTemplate': JSON.stringify(this.template)
+                $.post({
+                    url: window.location.href,
+                    data: {
+                        'template': this.template
+                    }
+                }).done((data) => {
+                    if (data && data.message && data.message != 'success') {
+                        this.createTemplateValidationErrors = [ data.message ]
+                    }
                 })
             },
             copyTemplate(template) {
                 return JSON.parse(JSON.stringify(template))
             },
             createTemplate() {
+                let selectedTemplates = this.getSelectedTemplates()
+                if (this.isCoherentSelection(selectedTemplates)) {
+                    $.post({
+                        url: '/designer/template',
+                        data: {
+                            template_name: this.template_name,
+                            template: JSON.stringify(this.getSelectedRootTemplate(selectedTemplates)),
+                            _token: getCsrfToken()
+                        }
+                    }).done((data) => {
+                        if (data && data.message && data.message != 'success') {
+                            this.createTemplateValidationErrors = [ data.message ]
+                        }
+                        else {
+                            $.get({
+                                url: '/designer/template'
+                            }).done((data) => {
+                                console.log(data)
+                                window.saved_templates = data
+                                this.saved_templates = data
+                            })
+                        }
+                    })
+                }
                 console.log(JSON.parse(JSON.stringify(this.getSelectedTemplates())))
                 console.log(this.isCoherentSelection(this.getSelectedTemplates()))
             },
             getSelectedTemplates() {
-                return this.getSelectedSubTemplates(this.template)
+                let copyTemplate = JSON.parse(JSON.stringify(this.template))
+                return this.getSelectedSubTemplates(copyTemplate)
             },
             getSelectedSubTemplates(template) {
                 let result = []
@@ -234,9 +293,7 @@
                     })
                 } 
                 else if (typeof template === 'object' && template !== null) {
-                    const templateIsRealTemplate = 'type' in template || 'template_type_name' in template
-
-                    if (templateIsRealTemplate) {
+                    if (this.isRealTemplate(template)) {
                         if ('selected' in template && template.selected === true) {
                             result.push(template)
                         }
@@ -246,6 +303,60 @@
                     }
                 }
                 return result
+            },
+            removeTemplateSelectedProperties(template) {
+                if (template !== null) {
+                    if (Array.isArray(template)) {
+                        template.forEach(templateItem => {
+                            this.removeTemplateSelectedProperties(templateItem)
+                        })
+                    }
+                    else if (typeof template == 'object') {
+                        if (this.isRealTemplate(template) && 'selected' in template) {
+                            delete template.selected
+                        }
+                        for (const [key, value] of Object.entries(template)) {
+                            this.removeTemplateSelectedProperties(value)
+                        }
+                    }
+                }
+            },
+            isCoherentSelection(templates) {
+                return this.getRootTemplates(templates).length == 1
+            },
+            getSelectedRootTemplate(templates) {
+                let rootTemplate = this.getRootTemplates(templates)[0]
+                rootTemplate = this.removeUnselectedChilds(rootTemplate)
+                this.removeTemplateSelectedProperties(rootTemplate)
+                return rootTemplate
+            },
+            removeUnselectedChilds(template) {
+                if (template !== null) {
+                    if (Array.isArray(template)) {
+                        template = template.filter(templateItem => {
+                            return (!this.isRealTemplate(templateItem) || templateItem.selected) && !this.isNullObject(templateItem)
+                        })
+                        
+                        template.forEach(templateItem => {
+                            this.removeUnselectedChilds(templateItem)
+                        })
+                    }
+                    else if (typeof template == 'object') {
+                        for (const [key, value] of Object.entries(template)) {
+                            if ((this.isRealTemplate(value) && !value.selected) || this.isNullObject(value)) {
+                                delete template[key]
+                            }
+                            else {
+                                template[key] = this.removeUnselectedChilds(template[key])
+                            }
+                        }
+                    }
+                }
+                return template
+            },
+            isNullObject(objectToCheck) {
+                return typeof objectToCheck === 'undefined' || objectToCheck === null || (!Array.isArray(objectToCheck) 
+                    && typeof objectToCheck === 'object' && Object.values(objectToCheck).length == 0)
             },
             removeTemplateChilds(templates) {
                 if (Array.isArray(templates)) {
@@ -269,21 +380,21 @@
                     throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
                 }
             },
-            isCoherentSelection(templates) {
+            getRootTemplates(templates) {
+                let childTemplates = this.getChildTemplates(templates)
+                return templates.filter(template => !childTemplates.includes(template));
+            },
+            getChildTemplates(templates) {
                 this.childTemplates = []
-                if (Array.isArray(templates)) {
-                    for (let i = 0; i < templates.length; i++) {
-                        for (let j = 0; j < templates.length; j++) {
-                            if (this.isChildTemplate(templates[i], templates[j])) {
-                                this.childTemplates.push(templates[i])
-                            }
+                //checkVariableType(templates, 'templates', 'array')
+                for (let i = 0; i < templates.length; i++) {
+                    for (let j = 0; j < templates.length; j++) {
+                        if (this.isChildTemplate(templates[i], templates[j])) {
+                            this.childTemplates.push(templates[i])
                         }
                     }
-                    return this.childTemplates.length == templates.length - 1
                 }
-                else {
-                    throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
-                }
+                return this.childTemplates
             },
             isChildTemplate(childTemplate, parentTemplate) {
                 if (parentTemplate['data']) {
@@ -312,6 +423,28 @@
                 else {
                     return childTemplate === parentTemplateDataValue
                 }
+            },
+            selectWithSubTemplates(template) {
+                this.selectWithSubTemplatesRecursively(template)
+                this.sectionChanged()
+            },
+            selectWithSubTemplatesRecursively(template) {
+                if (Array.isArray(template)) {
+                    template.map((item) => {
+                        this.selectWithSubTemplatesRecursively(item)
+                    })
+                }
+                else if (typeof template === 'object' && template !== null) {
+                    if (this.isRealTemplate(template)) {
+                        template.selected = true
+                    }
+                    for (const [key, value] of Object.entries(template)) {
+                        this.selectWithSubTemplatesRecursively(template[key])
+                    }
+                }
+            },
+            isRealTemplate(template) {
+                return template && typeof template == 'object' && ('type' in template || 'template_type_name' in template)
             }
         }
     }
