@@ -1,15 +1,15 @@
 div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" class='designer')
     div(v-if='this.propertyInfos')
         h1 {{ this.template.type }}
-        //create-icon-link.create-button(
+        create-icon-link.create-button(
             content='Create component'
             v-on:on_click='createComponent'
-        //)
+        )
         create-icon-link.create-button.ms-3(
-            v-bind:content='this.selected ? "Unselect" : "Select"'
+            :content="this.selected ? 'Unselect' : 'Select'"
             v-on:on_click='selectComponent'
         )
-        component.mb-3(
+        component(
             v-for='propertyName in propertyNames'
             v-bind:key='propertyName'
             v-bind:ref='propertyName'
@@ -17,8 +17,7 @@ div(v-bind:key='refresherKey' v-bind:class="[this.selected ? 'selected' : '']" c
             v-bind='formItemSections[propertyName].data'
             v-bind:value.sync='template.data[propertyName]'
             v-bind:saved_template_names='saved_template_names'
-            v-on:sectionLoaded='(newSection) => { loadSection(newSection, propertyName) }'
-            v-on:sectionSelected='(newSectionType) => { changeSection(newSectionType, propertyName) }'
-            v-on:sectionChanged='(newSectionType) => { $emit("sectionChanged", newSectionType) }'
+            @sectionSelected='(newSectionType) => { changeSection(newSectionType, propertyName) }'
+            @sectionChanged='(newSectionType) => { $emit("sectionChanged", newSectionType) }'
         )
-        //| {{ JSON.stringify(this.template) }}
+        | {{ JSON.stringify(this.template) }}
