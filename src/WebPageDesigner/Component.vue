@@ -268,6 +268,7 @@
                             this.createTemplateValidationErrors = [ data.message ]
                         }
                         else {
+                            this.createTemplateValidationErrors = []
                             $.get({
                                 url: '/designer/template'
                             }).done((data) => {
@@ -277,6 +278,9 @@
                             })
                         }
                     })
+                }
+                else {
+                    this.createTemplateValidationErrors = [ 'Incoherent selection' ]
                 }
                 console.log(JSON.parse(JSON.stringify(this.getSelectedTemplates())))
                 console.log(this.isCoherentSelection(this.getSelectedTemplates()))
@@ -320,9 +324,6 @@
                         }
                     }
                 }
-            },
-            isCoherentSelection(templates) {
-                return this.getRootTemplates(templates).length == 1
             },
             getSelectedRootTemplate(templates) {
                 let rootTemplate = this.getRootTemplates(templates)[0]
@@ -380,13 +381,15 @@
                     throw new Error('Templates parameter must be array: ' + JSON.stringify(templates))
                 }
             },
+            isCoherentSelection(templates) {
+                return this.getRootTemplates(templates).length == 1
+            },
             getRootTemplates(templates) {
                 let childTemplates = this.getChildTemplates(templates)
                 return templates.filter(template => !childTemplates.includes(template));
             },
             getChildTemplates(templates) {
                 this.childTemplates = []
-                //checkVariableType(templates, 'templates', 'array')
                 for (let i = 0; i < templates.length; i++) {
                     for (let j = 0; j < templates.length; j++) {
                         if (this.isChildTemplate(templates[i], templates[j])) {

@@ -10,11 +10,6 @@ form-item-with-label.form-group.array(
             icon_class='fas fa-plus'
             v-on:on_click='() => { createItem() }'
         )
-        create-icon-link.create-button.create-button-margin-left(
-            v-if='currentItemType == "web-designer-section-input"'
-            content='Paste selected sections'
-            v-on:on_click='addSelectedTemplates'
-        )
         div(v-if='value')
             div.array-item(v-for='valueIndex in value.length')
                 delete-icon-link(

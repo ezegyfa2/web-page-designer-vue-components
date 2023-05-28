@@ -49,6 +49,7 @@
             },
             createItem() {
                 if (this.value == null) {
+                    this.value = [null]
                     this.$emit('update:value', [null])
                 }
                 else {
